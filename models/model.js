@@ -1,5 +1,5 @@
 const sequelize = require('../config/db')
-const { Sequelize, DataTypes, Model} = require('sequelize');
+const { Sequelize, DataTypes, } = require('sequelize');
 
 // Model for the Giver i.e person running the giveaway
 const Giver = sequelize.define( 'Giver', {
@@ -14,16 +14,16 @@ const Giver = sequelize.define( 'Giver', {
         allowNull: false
     },
     lname:{
-        type:DataTypes.TIME,
+        type:DataTypes.STRING,
         allowNull: false
     },
     email:{
         type:DataTypes.TIME,
-        allowNull: false
+        //allowNull: false
     },
     password:{
         type:DataTypes.TIME,
-        allowNull: false
+        //allowNull: false
     }
 }, 
     { 
@@ -32,34 +32,66 @@ const Giver = sequelize.define( 'Giver', {
 
 Giver.sync()
 
-//Model for Giveaway
-// const Giveaway = sequelize.define( 'Giveaway', {
-//     giveawayId:{
+//Model for Giveaway i.e the event 
+const Giveaway = sequelize.define( 'Giveaway', {
+    giveawayId:{
+        type: DataTypes.INTEGER,
+        primaryKey:true,
+        autoIncrement:true,
+        allowNull: false
+    },
+    description:{
+        type: DataTypes.TEXT
+    }
+})
 
-//     },
-//     description:{
+Giver.hasMany(Giveaway, { foreignKey: 'giverId'})
+Giveaway.belongsTo(Giver, { foreignKey: 'giverId'})
+Giveaway.sync()
 
-//     }
-// })
+//Model for Contender
+const Contender = sequelize.define( 'Contender', {
+    contenderId:{
+        type: DataTypes.INTEGER,
+        primaryKey:true,
+        autoIncrement:true,
+        allowNull: false
+    },
+    handle:{
+        type:DataTypes.STRING,
+        allowNull: false
+    },
+    status:{
+        type:DataTypes.ENUM('Eligible', 'Ineligible', 'Restricted'),
+        allowNull:false,
+        defaultValue:'Eligible'
+    }
+})
 
-// class Contender extends Model {}
+Giveaway.hasMany(Contender, { foreignKey: 'giveawayId'})
+Contender.belongsTo(Giveaway, { foreignKey: 'giveawayId'})
+Contender.sync()
 
-// Contender.init({
-//     handle: {
-//         type: DataTypes.STRING,
-//         allowNull: false
-//     },
-//     app:{
-//         type:DataTypes.STRING
-//     },
-//     time:{
-//         type:DataTypes.TIME,
-//     }   
-// }, {
-//     sequelize,
-//     modelName: 'Contender',
-//     tableName: 'Contenders'
-// })
-// Contender.sync()
+//Model for Appearances/Features renamed Entries
+const Entry = sequelize.define('Entry', {
+    entryId:{
+        type: DataTypes.INTEGER,
+        primaryKey:true,
+        autoIncrement:true,
+        allowNull: false
+    },
+    app:{
+        type: DataTypes.STRING
+    },
+    outcome:{
+        type:DataTypes.ENUM('Contested', 'Won'),
+        allowNull:false,
+        defaultValue:'Contested'
+    }
+})
 
-module.exports = Giver;
+Contender.hasMany(Entry, { foreignKey: 'contenderId'})
+Entry.belongsTo(Contender, { foreignKey: 'contenderId'})
+Entry.sync();
+
+module.exports = Giver, Giveaway, Contender, Entry ;
