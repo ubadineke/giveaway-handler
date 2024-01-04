@@ -1,9 +1,10 @@
-const app = require('./app');
-const sequelize = require('./config/db')
-
 const dotenv = require('dotenv')
 dotenv.config({ path: './config.env' })
 
+const app = require('./app');
+const sequelize = require('./config/db')
+
+//Test Database Connection 
 const testDbConnection = async () => {
     try {
       await sequelize.authenticate();
