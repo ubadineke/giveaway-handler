@@ -9,17 +9,16 @@ const Giver = sequelize.define( 'Giver', {
         autoIncrement:true,
         allowNull: false
     },
-    fname:{
-        type:DataTypes.STRING,
-        allowNull: false
+    googleId:{
+        type: DataTypes.STRING, 
     },
-    lname:{
+    name:{
         type:DataTypes.STRING,
         allowNull: false
     },
     email:{
-        type:DataTypes.TIME,
-        //allowNull: false
+        type:DataTypes.STRING,
+        allowNull: false
     },
     password:{
         type:DataTypes.TIME,

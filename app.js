@@ -11,7 +11,7 @@ const passportConfig = require('./config/oauth')
 app.use(express.json());
 
 app.use(session({
-    secret: '',
+    secret: 'sereqsd',
     resave: false,
     saveUninitialized: false,
   }));
