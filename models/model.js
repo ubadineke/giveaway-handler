@@ -21,7 +21,7 @@ const Giver = sequelize.define( 'Giver', {
         allowNull: false
     },
     password:{
-        type:DataTypes.TIME,
+        type:DataTypes.STRING,
         //allowNull: false
     }
 }, 
@@ -29,7 +29,7 @@ const Giver = sequelize.define( 'Giver', {
        tableName: 'Givers'
 });
 
-Giver.sync()
+Giver.sync({ force: true })
 
 //Model for Giveaway i.e the event 
 const Giveaway = sequelize.define( 'Giveaway', {

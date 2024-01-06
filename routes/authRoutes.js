@@ -3,8 +3,7 @@ const passport = require('passport');
 const  {googleAuthMiddleware, handleGoogleAuthCallback}= require('../controllers/authController')
 const router = express.Router();
 
-
-//Entry 
+//App Entry point for sign/log iin
 router.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] }));
 
