@@ -1,4 +1,5 @@
-//const Giver = require('../models/model.js')
+const Giveaway = require('../models/model')
+
 
 //Function for random selection 
 function randomSelect(list, num){
@@ -29,7 +30,22 @@ exports.Home = async( req, res, next) => {
     })
 }
 
+exports.createEvent = async (req, res, next) => {
+ const {eventName} = req.body
+ //console.log(eventName)
+const giveaway = await Giveaway.create({
+    description: eventName
+})
 
+ res.status(200).json({
+    message: "Giveaway successfully created",
+    data: giveaway
+ })
+}
+
+exports.getEvent = async (req, res, next) => {
+
+}
 
 
 //exports.Handler = async (req, res, next) => {

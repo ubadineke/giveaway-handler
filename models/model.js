@@ -29,7 +29,7 @@ const Giver = sequelize.define( 'Giver', {
        tableName: 'Givers'
 });
 
-Giver.sync({ force: true })
+Giver.sync()
 
 //Model for Giveaway i.e the event 
 const Giveaway = sequelize.define( 'Giveaway', {

@@ -18,7 +18,6 @@ module.exports = function(passport) {
       where: { email },
       defaults: {name, googleId}
     });
-
     if(created){
       console.log(`User created:${user.name} `)
     }else if(!created) {
