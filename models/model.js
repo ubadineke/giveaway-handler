@@ -39,6 +39,11 @@ const Giveaway = sequelize.define( 'Giveaway', {
         autoIncrement:true,
         allowNull: false
     },
+    title:{
+        type:DataTypes.STRING,
+        allowNull:false,
+        unique:true
+    },
     description:{
         type: DataTypes.TEXT
     }

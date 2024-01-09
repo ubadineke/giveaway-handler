@@ -22,7 +22,11 @@ exports.Display = async(req, res, next) => {
     })
 }
 exports.Home = async( req, res, next) => {
-    const {select, handles} = req.body
+    const {title, select, handles} = req.body
+    for (let i = 0; i < handles.length; i++){
+      const result  = await sequelize.query(`INSERT INTO "Contenders" (giveaway_id, handle, "createdAt", "updatedAt") VALUES ((select giveaway_id from "Giveaways" where title = '${title}'), '${handles[i]}', '2024-01-09 12:28:35.686 +0100', '2024-01-09 12:28:35.686 +0100')`)  
+    };
+    
     let selectedNames = randomSelect(handles, select)
 
     res.status(200).json({
@@ -32,24 +36,38 @@ exports.Home = async( req, res, next) => {
 }
 
 exports.createEvent = async (req, res, next) => {
- const {eventName} = req.body
- //console.log(eventName)
-// const giveaway = await Giveaway.create({
-//     description: eventName
-// })
-const drazy = 'Laplace'
-const [results, metadata] = await sequelize.query(`INSERT INTO "Giveaways" (giver_id, description, "createdAt", "updatedAt") VALUES  ((select giver_id  from "Givers" where name = 'Ubadineke Prince'), '${drazy}', '2024-01-09 12:28:35.686 +0100', '2024-01-09 12:28:35.686 +0100')`)
+try{
+ const {title, description} = req.body
+const [results, metadata] = await sequelize.query(`INSERT INTO "Giveaways" (giver_id, title, description, "createdAt", "updatedAt") VALUES  ((select giver_id  from "Givers" where name = '${req.user.name}'), '${title}', '${description}', '2024-01-09 12:28:35.686 +0100', '2024-01-09 12:28:35.686 +0100')`)
 
 res.status(200).json({
     message: "Giveaway successfully created",
-    data: results
+    data: `${metadata} row successfully modified`
  })
+}catch(err){
+    res.status(401).json({message: err})
+}
+
 }
 
 exports.getEvent = async (req, res, next) => {
-
+    console.log(req.user)
+//Extract id from the req.user, check the Giveaway table for events related to that user and return them
+const [events] = await sequelize.query(`SELECT title, description FROM "Giveaways" WHERE giver_id = ${req.user.giver_id}`) 
+res.status(200).json({
+    message:"Successfully retrieved",
+    data:events
+})
 }
 
+exports.addEntry = async (req, res, next ) => {
+    const {eventName} = req.params
+    console.log(eventName)
+}
+
+exports.getContender = async (req, res, next) => {
+
+}
 
 //exports.Handler = async (req, res, next) => {
 //Get handles

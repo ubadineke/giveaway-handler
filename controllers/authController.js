@@ -1,5 +1,7 @@
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
+const {promisify} = require('util');
+const sequelize = require('../config/db');
 const Giver = require('../models/model.js')
 
 const signToken = id => { return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -41,6 +43,42 @@ exports.handleGoogleAuthCallback = async (req, res) => {
   //console.log(req.user)
   
 };
+
+exports.protect = async( req, res, next) => {
+    let token;
+    if( req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+        token = req.headers.authorization.split(' ')[1]
+        console.log(token)
+    }
+    if(!token) {
+        return next(res.status(401).json({message: "You're not logged in!. Please log in to get access"}))
+    }
+
+    let decoded;
+    try{
+        decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET) //returns the payload which is the user's id
+        console.log(decoded)
+
+    } catch(err){
+    return res.status(401).json({
+            status: 'fail',
+            message: ["Invalid token, Please log in", {Error: err}]
+        })
+    }
+
+    //const [currentUser] = await sequelize.query(`SELECT * FROM "Givers" WHERE giver_id = ${decoded.id}`,)
+    const currentUser = await Giver.findOne({where: {giver_id: decoded.id}})
+    if(!currentUser) {
+        // return next(res.json({message: ["The user belonging to this token does not exist"]}))
+        return res.status(401).json({
+         status:  'fail',
+         message: "The user belonging to this token does not exist"
+     })
+    }
+
+    req.user = currentUser
+    next();
+}
 
 exports.Home = (req, res) => {
     const user = { id: 123322323}
