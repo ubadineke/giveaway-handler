@@ -11,12 +11,12 @@ module.exports = function(passport) {
     // Code to handle user authentication and retrieval using profile data
     //Find or create user
     let name = profile.displayName
-    let googleId = profile.id
+    let google_id = profile.id
     let email = profile.emails[0].value
     
     const [user, created] = await Giver.findOrCreate({
       where: { email },
-      defaults: {name, googleId}
+      defaults: {name, google_id}
     });
     if(created){
       console.log(`User created:${user.name} `)

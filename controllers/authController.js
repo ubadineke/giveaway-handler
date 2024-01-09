@@ -28,14 +28,14 @@ exports.handleGoogleAuthCallback = async (req, res) => {
     // res.json({message:"gone"})
     //setTimeout(() => { 
         const user = await Giver.findOne({
-            where: { googleId: req.user.id } // Replace 'username' with the column name
+            where: { google_id: req.user.id } // Replace 'username' with the column name
         });
         //console.log(user)
         // let token = jwt.sign({
         //     data: user.giverId
         //     }, 'secret', { expiresIn: 60 }); // expiry in seconds
             //res.cookie('jwt', token)
-        createSendToken(user.giverId, res)
+        createSendToken(user.giver_id, res)
         res.redirect('/giveaway/')
    // }, 1000); // Adjust the delay based on the asynchronous operations inside createSendToken;
   //console.log(req.user)

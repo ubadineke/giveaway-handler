@@ -1,3 +1,4 @@
+const sequelize = require('../config/db');
 const Giveaway = require('../models/model')
 
 
@@ -33,13 +34,15 @@ exports.Home = async( req, res, next) => {
 exports.createEvent = async (req, res, next) => {
  const {eventName} = req.body
  //console.log(eventName)
-const giveaway = await Giveaway.create({
-    description: eventName
-})
+// const giveaway = await Giveaway.create({
+//     description: eventName
+// })
+const drazy = 'Laplace'
+const [results, metadata] = await sequelize.query(`INSERT INTO "Giveaways" (giver_id, description, "createdAt", "updatedAt") VALUES  ((select giver_id  from "Givers" where name = 'Ubadineke Prince'), '${drazy}', '2024-01-09 12:28:35.686 +0100', '2024-01-09 12:28:35.686 +0100')`)
 
- res.status(200).json({
+res.status(200).json({
     message: "Giveaway successfully created",
-    data: giveaway
+    data: results
  })
 }
 
