@@ -53,6 +53,20 @@ Giver.hasMany(Giveaway, { foreignKey: 'giver_id'})
 Giveaway.belongsTo(Giver, { foreignKey: 'giver_id'})
 Giveaway.sync()
 
+//Model for Instances of a certain Giveaway i.e a particular giveaway can be conducted several times
+const Instance = sequelize.define('Instance', {
+    instance_id:{
+        type: DataTypes.INTEGER,
+        primaryKey:true,
+        autoIncrement:true,
+        allowNull: false
+    }
+})
+
+Giveaway.hasMany(Instance, {foreignKey: 'giveaway_id'})
+Instance.belongsTo(Giveaway, {foreignKey: 'giveaway_id'})
+Instance.sync()
+
 //Model for Contender
 const Contender = sequelize.define( 'Contender', {
     contender_id:{
@@ -96,6 +110,9 @@ const Entry = sequelize.define('Entry', {
 
 Contender.hasMany(Entry, { foreignKey: 'contender_id'})
 Entry.belongsTo(Contender, { foreignKey: 'contender_id'})
+
+Instance.hasMany(Entry, {foreignKey: 'instance_id'})
+Entry.belongsTo(Instance, {foreignKey: 'instance_id'})
 Entry.sync();
 
 module.exports = Giver, Giveaway, Contender, Entry ;

@@ -18,6 +18,7 @@ exports.Display = async(req, res, next) => {
         data: null
     })
 }
+
 exports.Home = async( req, res, next) => {
     const {title, select, handles} = req.body
 //Save new/non-existing contenders to the db
@@ -44,6 +45,8 @@ for(let i = 0; i < handles.length; i++){
 }
 
     let selectedNames = randomSelect(handles, select)
+//Update the outcome of the contender's entry after the random selection 
+
 
     res.status(200).json({
         message:"done",
@@ -55,28 +58,28 @@ for(let i = 0; i < handles.length; i++){
 }
 
 exports.createEvent = async (req, res, next) => {
-try{
- const {title, description} = req.body
-const [results, metadata] = await sequelize.query(`INSERT INTO "Giveaways" (giver_id, title, description, "createdAt", "updatedAt") VALUES  ((select giver_id  from "Givers" where name = '${req.user.name}'), '${title}', '${description}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
+    try{
+    const {title, description} = req.body
+    const [results, metadata] = await sequelize.query(`INSERT INTO "Giveaways" (giver_id, title, description, "createdAt", "updatedAt") VALUES  ((select giver_id  from "Givers" where name = '${req.user.name}'), '${title}', '${description}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
 
 
-res.status(200).json({
-    message: "Giveaway successfully created",
-    data: `${metadata} row successfully modified`
- })
-}catch(err){
-    res.status(401).json({message: err})
-}
+    res.status(200).json({
+        message: "Giveaway successfully created",
+        data: `${metadata} row successfully modified`
+    })
+    }catch(err){
+        res.status(401).json({message: err})
+    }
 
 }
 
 exports.getEvent = async (req, res, next) => {
-    console.log(req.user)
-//Extract id from the req.user, check the Giveaway table for events related to that user and return them
-const [events] = await sequelize.query(`SELECT title, description FROM "Giveaways" WHERE giver_id = ${req.user.giver_id}`) 
-res.status(200).json({
-    message:"Successfully retrieved",
-    data:events
+        console.log(req.user)
+    //Extract id from the req.user, check the Giveaway table for events related to that user and return them
+    const [events] = await sequelize.query(`SELECT title, description FROM "Giveaways" WHERE giver_id = ${req.user.giver_id}`) 
+    res.status(200).json({
+        message:"Successfully retrieved",
+        data:events
 })
 }
 
@@ -85,8 +88,18 @@ exports.addEntry = async (req, res, next ) => {
     console.log(eventName)
 }
 
-exports.getContender = async (req, res, next) => {
-
+exports.createEventInstance = async (req, res, next) => {
+    // try{
+        const {title} = req.body
+        const [results, metadata] = await sequelize.query(`INSERT INTO "Instances" (giveaway_id, "createdAt", "updatedAt") VALUES  ((SELECT giveaway_id  FROM "Giveaways" where title = '${title}'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
+    
+        res.status(200).json({
+            message: "Giveaway Instance successfully created",
+            data: `${metadata} row successfully modified`
+        })
+//         }catch(err){
+//             res.status(401).json({message: err})
+//         }
 }
 
 //exports.Handler = async (req, res, next) => {
