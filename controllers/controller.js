@@ -39,14 +39,23 @@ exports.Home = async( req, res, next) => {
             }
     }
 
+//Create an instance of the current giveaway
+        const [instance, metadata] = await sequelize.query(`INSERT INTO "Instances" (giveaway_id, "createdAt", "updatedAt") VALUES  ((SELECT giveaway_id  FROM "Giveaways" where title = '${title}'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING instance_id`)
+        console.log(instance)
+
 //Save all handles(new or existing) to entries table 
 for(let i = 0; i < handles.length; i++){
-    const entries = await sequelize.query(`INSERT INTO "Entries" (contender_id, "createdAt", "updatedAt") VALUES ((SELECT contender_id FROM "Contenders" c JOIN "Giveaways" g ON c.giveaway_id = g.giveaway_id WHERE handle = '${handles[i]}' AND title = '${title}'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
+    const entries = await sequelize.query(`INSERT INTO "Entries" (contender_id, instance_id, "createdAt", "updatedAt") VALUES ((SELECT contender_id FROM "Contenders" c JOIN "Giveaways" g ON c.giveaway_id = g.giveaway_id WHERE handle = '${handles[i]}' AND title = '${title}'), ${instance[0].instance_id}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
 }
 
     let selectedNames = randomSelect(handles, select)
 //Update the outcome of the contender's entry after the random selection 
+for(let i = 0; i < selectedNames.length; i++){
+    await sequelize.query(`UPDATE "Entries" SET outcome = 'Won' WHERE instance_id = ${instance[0].instance_id} AND contender_id = (SELECT contender_id FROM "Contenders" WHERE handle = '${selectedNames[i]}')`)
+}
+// 
 
+//Function to add next - if one fails, revert the other stuff saved to the db
 
     res.status(200).json({
         message:"done",
@@ -57,6 +66,7 @@ for(let i = 0; i < handles.length; i++){
     })
 }
 
+//Create a new giveaway
 exports.createEvent = async (req, res, next) => {
     try{
     const {title, description} = req.body
@@ -90,12 +100,10 @@ exports.addEntry = async (req, res, next ) => {
 
 exports.createEventInstance = async (req, res, next) => {
     // try{
-        const {title} = req.body
-        const [results, metadata] = await sequelize.query(`INSERT INTO "Instances" (giveaway_id, "createdAt", "updatedAt") VALUES  ((SELECT giveaway_id  FROM "Giveaways" where title = '${title}'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
+        
     
         res.status(200).json({
-            message: "Giveaway Instance successfully created",
-            data: `${metadata} row successfully modified`
+            message: "Giveaway Instance successfully created"
         })
 //         }catch(err){
 //             res.status(401).json({message: err})
