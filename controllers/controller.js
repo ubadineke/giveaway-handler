@@ -11,9 +11,6 @@ function randomSelect(list, num){
 
 // Home Route 
 // Takes in a no.of handles and randomly select based on the number provided 
-exports.protect = async(req, res, next) => {
-
-}
 
 exports.Display = async(req, res, next) => {
     res.status(200).json({
@@ -23,22 +20,45 @@ exports.Display = async(req, res, next) => {
 }
 exports.Home = async( req, res, next) => {
     const {title, select, handles} = req.body
-    for (let i = 0; i < handles.length; i++){
-      const result  = await sequelize.query(`INSERT INTO "Contenders" (giveaway_id, handle, "createdAt", "updatedAt") VALUES ((select giveaway_id from "Giveaways" where title = '${title}'), '${handles[i]}', '2024-01-09 12:28:35.686 +0100', '2024-01-09 12:28:35.686 +0100')`)  
-    };
-    
+//Save new/non-existing contenders to the db
+
+    // --- Extract existing contenders in the db 
+    const [existingVal] = await sequelize.query(`SELECT handle from "Contenders" c JOIN "Giveaways" g on c.giveaway_id = g.giveaway_id WHERE g.title = '${title}'`)
+
+    let names = []; //store contenders in array format
+    for(let i = 0; i < existingVal.length; i++) {
+        names.push(existingVal[i].handle);
+    }
+
+    //---Filter out values present in handles but not in names and save to db
+    const complement = handles.filter(value => !names.includes(value));
+    if(complement.length !== 0){
+        for (let i = 0; i < handles.length; i++){
+            const result  = await sequelize.query(`INSERT INTO "Contenders" (giveaway_id, handle, "createdAt", "updatedAt") VALUES ((select giveaway_id from "Giveaways" where title = '${title}'), '${handles[i]}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)  
+            }
+    }
+
+//Save all handles(new or existing) to entries table 
+for(let i = 0; i < handles.length; i++){
+    const entries = await sequelize.query(`INSERT INTO "Entries" (contender_id, "createdAt", "updatedAt") VALUES ((SELECT contender_id FROM "Contenders" c JOIN "Giveaways" g ON c.giveaway_id = g.giveaway_id WHERE handle = '${handles[i]}' AND title = '${title}'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
+}
+
     let selectedNames = randomSelect(handles, select)
 
     res.status(200).json({
         message:"done",
-        data:selectedNames
+        data:{
+            new_input:complement,
+            selected:selectedNames
+        }
     })
 }
 
 exports.createEvent = async (req, res, next) => {
 try{
  const {title, description} = req.body
-const [results, metadata] = await sequelize.query(`INSERT INTO "Giveaways" (giver_id, title, description, "createdAt", "updatedAt") VALUES  ((select giver_id  from "Givers" where name = '${req.user.name}'), '${title}', '${description}', '2024-01-09 12:28:35.686 +0100', '2024-01-09 12:28:35.686 +0100')`)
+const [results, metadata] = await sequelize.query(`INSERT INTO "Giveaways" (giver_id, title, description, "createdAt", "updatedAt") VALUES  ((select giver_id  from "Givers" where name = '${req.user.name}'), '${title}', '${description}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
+
 
 res.status(200).json({
     message: "Giveaway successfully created",
